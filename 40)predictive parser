@@ -1,0 +1,87 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <ctype.h>
+
+char input[100];
+int index = 0;
+char lookahead;
+
+void error() {
+    printf("Invalid expression.\n");
+    exit(1);
+}
+
+void match(char expected) {
+    if (lookahead == expected) {
+        lookahead = input[index++];
+        if (lookahead == ' ')
+            lookahead = input[index++];
+    } else {
+        error();
+    }
+}
+
+void E();
+void Eprime();
+void T();
+void Tprime();
+void F();
+
+void E() {
+    T();
+    Eprime();
+}
+
+void Eprime() {
+    if (lookahead == '+') {
+        match('+');
+        T();
+        Eprime();
+    }
+}
+
+void T() {
+    F();
+    Tprime();
+}
+
+void Tprime() {
+    if (lookahead == '*') {
+        match('*');
+        F();
+        Tprime();
+    }
+}
+
+void F() {
+    if (isdigit(lookahead)) {
+        match(lookahead);
+    } else if (lookahead == '(') {
+        match('(');
+        E();
+        if (lookahead == ')') {
+            match(')');
+        } else {
+            error();
+        }
+    } else {
+        error();
+    }
+}
+
+int main() {
+    printf("Enter an arithmetic expression: ");
+    fgets(input, sizeof(input), stdin);
+
+    lookahead = input[index++];
+
+    E();
+
+    if (lookahead == '\0' || lookahead == '\n') {
+        printf("Expression is valid.\n");
+    } else {
+        printf("Invalid expression.\n");
+    }
+
+    return 0;
+}
